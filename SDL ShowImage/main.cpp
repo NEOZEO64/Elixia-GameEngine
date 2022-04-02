@@ -1,8 +1,11 @@
 #include <SDL2/SDL.h> // general SDL graphics, sound, events library
 #include <SDL2/SDL_image.h>
+#include <iostream>
 
-#define SWIDTH 320 //screen coord
-#define SHEIGHT 620
+using namespace std;
+
+#define SWIDTH 720 //screen coord
+#define SHEIGHT 400
 #define FPS 60
 
 typedef int8_t i8;  //mostly used for ingame coords
@@ -11,6 +14,12 @@ typedef int32_t i32; //mostly used for screen coords
 SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Event event;
+SDL_Surface* image;
+SDL_Texture* imageTex;
+
+SDL_Rect imageDestinationRect = {10,10, 100,100}; 
+SDL_Rect imageSourceRect = {50, 100, 60,60};
+
 
 struct Color {i32 r; i32 g; i32 b; i32 a;};
 const struct Color black = {0x00, 0x00, 0x00, 0xFF};
@@ -37,14 +46,25 @@ int init() {
     srand(time(NULL)); // use the current time as the seed to generate random integers
 
     if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
-        printf("error initializing SDL: %s\n", SDL_GetError());
+        cout << "error initializing SDL:" << SDL_GetError() << endl;
         return 0;
+    }
+
+    if (IMG_Init(IMG_INIT_PNG) == 0) {
+        cout << "error initializing SDL2_image" << endl;
+	    return 0;
     }
 
     window = SDL_CreateWindow("Hello World!", SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,SWIDTH, SHEIGHT,0 );
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    image = IMG_Load("lettuce.png");
+    imageTex = SDL_CreateTextureFromSurface(renderer, image);
+    SDL_FreeSurface(image);
 
-    if (window == NULL || renderer == 0) {return 0;}
+    if (window == NULL || renderer == 0 || image == NULL) {
+        cout << "Error loading window, renderer or image" << endl;
+        return 0;
+    }
 
     return 1;
 }
@@ -98,17 +118,17 @@ void render() {
     drawBackground(black);
 
     //drawings here
-    drawRect(10,10,50,50,red,true);
-
+    //drawRect(10,10,50,50,red,true);
+    SDL_RenderCopy(renderer, imageTex, &imageSourceRect, &imageDestinationRect);
 
     SDL_RenderPresent(renderer); // triggers the double buffers for multiple rendering
 }
 
 void clean() {
+    SDL_DestroyTexture(imageTex);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
-
 }
 
 int main() {
