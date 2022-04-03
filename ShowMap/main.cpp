@@ -8,8 +8,11 @@
 using namespace rapidxml;
 using namespace std;
 
-#define SWIDTH 1280 //screen coord
-#define SHEIGHT 720
+const int SWIDTH = 1280; //screen coord
+const int SHEIGHT = 720;
+
+int offsetX, offsetY;
+
 #define FPS 60
 
 const int screenTileWidth = 32; //and tileHeight
@@ -140,6 +143,7 @@ public:
   int width, height;
   int layerCount;
   int tileWidth, tileHeight;
+  int mapWidth, mapHeight;
   short* tiles; // = new int[m * n];
 
   Map(string ipath) {
@@ -166,6 +170,9 @@ public:
     width = atoi(mapNode->first_attribute("width")->value());
     height = atoi(mapNode->first_attribute("height")->value());
     layerCount = atoi(mapNode->first_attribute("nextlayerid")->value()) - 1;
+
+    mapWidth = tileWidth*width;
+    mapHeight = tileHeight*height;
 
     tiles = new short[layerCount * height * width];
 
@@ -228,12 +235,12 @@ public:
     cout << "Tile W:" << tileWidth << " H:" << tileHeight << endl;
   }
 
-  void render(TileSet* tileSet, SDL_Texture* texture, int layer) {
+  void render(TileSet* tileSet, SDL_Texture* texture, int layer, int offsetX, int offsetY) {
     for (int y = 0; y<height; y++) {
       for (int x = 0; x<width; x++) {
         short currentBlockID = getID(tileSet,x,y,layer);
         SDL_Rect tempSourceRect = (*tileSet).getRectOfID(currentBlockID);
-        SDL_Rect tempDestRect = {x*screenTileWidth, y*screenTileWidth, screenTileWidth, screenTileWidth};
+        SDL_Rect tempDestRect = {x*screenTileWidth+offsetX, y*screenTileWidth+offsetY, screenTileWidth, screenTileWidth};
         SDL_RenderCopy(renderer, texture, &tempSourceRect, &tempDestRect);
       }
     }
@@ -316,10 +323,14 @@ void render(Map* map, TileSet* tileSet) {
   SDL_RenderClear(renderer); //make screen black
   drawBackground(black);
   //drawRect(10,10,50,50,red,true);
-  map->render(tileSet,tileSet->sourceTexSet,0);
+
+  //Render Ghostlayer
+  map->render(tileSet,tileSet->sourceTexSet,0,offsetX,offsetY);
+
+  //Render Collisionlayer
+  map->render(tileSet,tileSet->sourceTexSet,1,offsetX,offsetY);
   //tileSet->render();
   SDL_RenderPresent(renderer); // triggers the double buffers for multiple rendering
-
 } 
 
 void clean() {
@@ -333,6 +344,9 @@ int main(void) {
 
   TileSet tileSet("./KenneyLandscapeTiles.tsx");
   Map playgroundMap("./PlaygroundMap.tmx");
+
+  offsetX = (SWIDTH-playgroundMap.mapWidth*screenTileWidth/playgroundMap.tileWidth)/2;
+  offsetY = (SHEIGHT-playgroundMap.mapHeight*screenTileWidth/playgroundMap.tileHeight)/2;
 
   playgroundMap.printProperties();
   tileSet.printProperties();
