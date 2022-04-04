@@ -13,7 +13,7 @@
 using namespace rapidxml;
 using namespace std;
 
-bool bounciness = false;
+bool bounciness = true;
 
 const int SWIDTH = 1280; //screen coord
 const int SHEIGHT = 800;
@@ -417,7 +417,7 @@ public:
     ) {
       pos.x += vel.x;
     } else {
-      if (bounciness){vel.x*=-0.9;}
+      if (bounciness){vel.x*=-0.4;}
       else {vel.x=0;pos.x=(map->tileWidth)*((int)pos.x)/(map->tileWidth);}
     }
 
@@ -429,7 +429,7 @@ public:
     ) {  
       pos.y += vel.y;
     } else {
-      if (bounciness) {vel.y*=-0.9;}
+      if (bounciness) {vel.y*=-0.4;}
       else {vel.y=0;pos.y=(map->tileHeight)*((int)pos.y)/(map->tileHeight);}
     }
 
