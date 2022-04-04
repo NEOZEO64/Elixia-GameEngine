@@ -16,6 +16,8 @@ using namespace std;
 const int SWIDTH = 1280; //screen coord
 const int SHEIGHT = 800;
 
+const int tileSize = 32;
+
 const int maxEntityCount = 100;
 
 struct Vector2D {
@@ -395,7 +397,7 @@ public:
 
   void init(float ix, float iy, struct Color icolor) {
     pos.x = ix; pos.y = iy;
-    size.x = 10; size.y = 10;
+    size.x = tileSize; size.y = tileSize;
     normViewAngle.set(1,0);
     vel.set(0,0);
     color = icolor;
@@ -404,11 +406,21 @@ public:
   }
 
   void update(Map* map) {
-    if (!map->isColliding(pos.getAdded(vel.x,0))) {
+    if ( //check if 4 corners at the new position are inside any part of the map
+      !map->isColliding(pos.getAdded(vel.x,0).getAdded( offsetToCenter.x, offsetToCenter.y)) &&
+      !map->isColliding(pos.getAdded(vel.x,0).getAdded(-offsetToCenter.x, offsetToCenter.y)) &&
+      !map->isColliding(pos.getAdded(vel.x,0).getAdded( offsetToCenter.x,-offsetToCenter.y)) &&
+      !map->isColliding(pos.getAdded(vel.x,0).getAdded(-offsetToCenter.x,-offsetToCenter.y)) 
+    ) {
       pos.x += vel.x;
     } else {vel.x*=-0.9;}
 
-    if (!map->isColliding(pos.getAdded(0,vel.y))) {
+    if ( //check if 4 corners at the new position are inside any part of the map
+      !map->isColliding(pos.getAdded(0,vel.y).getAdded( offsetToCenter.x, offsetToCenter.y)) &&
+      !map->isColliding(pos.getAdded(0,vel.y).getAdded(-offsetToCenter.x, offsetToCenter.y)) &&
+      !map->isColliding(pos.getAdded(0,vel.y).getAdded( offsetToCenter.x,-offsetToCenter.y)) &&
+      !map->isColliding(pos.getAdded(0,vel.y).getAdded(-offsetToCenter.x,-offsetToCenter.y))
+    ) {  
       pos.y += vel.y;
     } else {vel.y*=-0.9;}
 
@@ -417,7 +429,7 @@ public:
 
   void render(Vector2D offset) {
     Vector2D tempPos = pos.getSubt(offsetToCenter).getAdded(offset);
-    drawRect(tempPos,size,color,true);
+    drawRect(tempPos,size,color,false);
   }
 };
 
@@ -535,10 +547,10 @@ int main(void) {
   if (!mySDLInit()) {return -1;}
 
   TileSet tileSet("./KenneyLandscapeTiles.tsx");
-  Map map("./PlaygroundMap.tmx", 32);
+  Map map("./PlaygroundMap.tmx", tileSize);
 
   Entity entities[maxEntityCount];
-  entities[0].init(map.mapWidth/2,map.mapWidth/2,red);
+  entities[0].init(map.mapWidth/2,map.mapHeight/2,red);
 
   gameOffset.set(
     (SWIDTH-map.mapWidth)/2,
