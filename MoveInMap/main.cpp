@@ -537,8 +537,6 @@ int main(void) {
   TileSet tileSet("./KenneyLandscapeTiles.tsx");
   Map map("./PlaygroundMap.tmx", 32);
 
-  map.printProperties();
-
   Entity entities[maxEntityCount];
   entities[0].init(map.mapWidth/2,map.mapWidth/2,red);
 
