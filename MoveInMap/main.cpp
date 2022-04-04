@@ -13,6 +13,8 @@
 using namespace rapidxml;
 using namespace std;
 
+bool bounciness = false;
+
 const int SWIDTH = 1280; //screen coord
 const int SHEIGHT = 800;
 
@@ -332,10 +334,11 @@ public:
     return tiles[layer* width*height + ty * width + tx]; 
   }
 
-  bool isColliding(Vector2D pos) {
+  bool isColliding(TileSet* tileSet,Vector2D pos) {
     float tempTx = ((int)pos.x)/tileWidth; //without the rest!
     float tempTy = ((int)pos.y)/tileHeight;
-    return getID(tempTx,tempTy,1);
+    short tempID = getID(tempTx,tempTy,1);
+    return (0<tempID && tempID <(tileSet->tileCount));
 
   }
 
@@ -397,7 +400,7 @@ public:
 
   void init(float ix, float iy, struct Color icolor) {
     pos.x = ix; pos.y = iy;
-    size.x = tileSize; size.y = tileSize;
+    size.x = tileSize*0.8; size.y = tileSize*0.8;
     normViewAngle.set(1,0);
     vel.set(0,0);
     color = icolor;
@@ -405,24 +408,30 @@ public:
     offsetToCenter.set(size.x*0.5, size.y*0.5);
   }
 
-  void update(Map* map) {
+  void update(Map* map, TileSet* tileSet) {
     if ( //check if 4 corners at the new position are inside any part of the map
-      !map->isColliding(pos.getAdded(vel.x,0).getAdded( offsetToCenter.x, offsetToCenter.y)) &&
-      !map->isColliding(pos.getAdded(vel.x,0).getAdded(-offsetToCenter.x, offsetToCenter.y)) &&
-      !map->isColliding(pos.getAdded(vel.x,0).getAdded( offsetToCenter.x,-offsetToCenter.y)) &&
-      !map->isColliding(pos.getAdded(vel.x,0).getAdded(-offsetToCenter.x,-offsetToCenter.y)) 
+      !map->isColliding(tileSet,pos.getAdded(vel.x,0).getAdded( offsetToCenter.x, offsetToCenter.y)) &&
+      !map->isColliding(tileSet,pos.getAdded(vel.x,0).getAdded(-offsetToCenter.x, offsetToCenter.y)) &&
+      !map->isColliding(tileSet,pos.getAdded(vel.x,0).getAdded( offsetToCenter.x,-offsetToCenter.y)) &&
+      !map->isColliding(tileSet,pos.getAdded(vel.x,0).getAdded(-offsetToCenter.x,-offsetToCenter.y)) 
     ) {
       pos.x += vel.x;
-    } else {vel.x*=-0.9;}
+    } else {
+      if (bounciness){vel.x*=-0.9;}
+      else {vel.x=0;pos.x=(map->tileWidth)*((int)pos.x)/(map->tileWidth);}
+    }
 
     if ( //check if 4 corners at the new position are inside any part of the map
-      !map->isColliding(pos.getAdded(0,vel.y).getAdded( offsetToCenter.x, offsetToCenter.y)) &&
-      !map->isColliding(pos.getAdded(0,vel.y).getAdded(-offsetToCenter.x, offsetToCenter.y)) &&
-      !map->isColliding(pos.getAdded(0,vel.y).getAdded( offsetToCenter.x,-offsetToCenter.y)) &&
-      !map->isColliding(pos.getAdded(0,vel.y).getAdded(-offsetToCenter.x,-offsetToCenter.y))
+      !map->isColliding(tileSet,pos.getAdded(0,vel.y).getAdded( offsetToCenter.x, offsetToCenter.y)) &&
+      !map->isColliding(tileSet,pos.getAdded(0,vel.y).getAdded(-offsetToCenter.x, offsetToCenter.y)) &&
+      !map->isColliding(tileSet,pos.getAdded(0,vel.y).getAdded( offsetToCenter.x,-offsetToCenter.y)) &&
+      !map->isColliding(tileSet,pos.getAdded(0,vel.y).getAdded(-offsetToCenter.x,-offsetToCenter.y))
     ) {  
       pos.y += vel.y;
-    } else {vel.y*=-0.9;}
+    } else {
+      if (bounciness) {vel.y*=-0.9;}
+      else {vel.y=0;pos.y=(map->tileHeight)*((int)pos.y)/(map->tileHeight);}
+    }
 
     vel.multWithScalar(0.99f);
   }
@@ -567,7 +576,7 @@ int main(void) {
     entities[0].vel.add(tempAcceleration);
     
     for (int i = 0; i<maxEntityCount; i++) {
-      if (entities[i].initialized) {entities[i].update(&map);}
+      if (entities[i].initialized) {entities[i].update(&map,&tileSet);}
     }
 
     renderGame(&tileSet, &map, entities, gameOffset);
