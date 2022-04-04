@@ -4,34 +4,144 @@
 #include "rapidxml.hpp"
 #include <SDL2/SDL.h> // general SDL graphics, sound, events library
 #include <SDL2/SDL_image.h>
+#include <math.h>
+
+#define FPS 60
+
+#define PI 3.14159265
 
 using namespace rapidxml;
 using namespace std;
 
 const int SWIDTH = 1280; //screen coord
-const int SHEIGHT = 720;
+const int SHEIGHT = 800;
 
-int offsetX, offsetY;
+const int maxEntityCount = 100;
 
-#define FPS 60
+struct Vector2D {
+  float x, y;
 
-const int screenTileWidth = 32; //and tileHeight
+  Vector2D() {}
 
-typedef int8_t i8;  //mostly used for ingame coords
-typedef int32_t i32; //mostly used for screen coords
+  Vector2D (float ix, float iy) {
+    x = ix;
+    y = iy;
+  }
+
+  void set(float ix, float iy) {
+    x = ix;
+    y = iy;
+  }
+
+  void set(Vector2D newVector) {
+    x = newVector.x;
+    y = newVector.y;
+  }
+
+  void add(Vector2D vector) {
+    x += vector.x;
+    y += vector.y;
+  }
+
+  void add(float ix, float iy) {
+    x += ix;
+    y += iy;
+  }
+
+  void subt(Vector2D vector) {
+    x -= vector.x;
+    y -= vector.y;
+  }
+
+  Vector2D getAdded(Vector2D vector) {
+    Vector2D tempSum(x+vector.x,y+vector.y);
+    return tempSum;
+  }
+
+  Vector2D getAdded(float ix, float iy) {
+    Vector2D tempSum(x+ix,y+iy);
+    return tempSum;
+  }
+
+  Vector2D getSubt(Vector2D vector) {
+    Vector2D tempSum(x-vector.x,y-vector.y);
+    return tempSum;
+  }
+
+  void multWithScalar(float scalar) {
+    x *= scalar;
+    y *= scalar;
+  }
+
+  void multWithVector(Vector2D vector) {
+    x *= vector.x;
+    y *= vector.y;
+  }
+
+  void multWithVector(float ix, float iy) {
+    x *= ix;
+    y *= iy;
+  }
+
+  Vector2D getNorm() {
+    Vector2D tempNormVector(x,y);
+    tempNormVector.normalize();
+    return tempNormVector;
+  }
+
+  void normalize() {
+    multWithScalar(1.0f/getLen());
+  }
+
+  float getLen() {
+    return sqrt(pow(x,2)+pow(y,2));
+  }
+
+  float getAngle() { //to an vector (1,0) otherwise a vector facing east
+    return acos((x/getLen())/180*PI);
+  }
+
+  float getDist(Vector2D vector) {
+    return sqrt(pow(x-vector.x,2)+pow(y-vector.y,2));
+  }
+
+  Vector2D getDiffVector(Vector2D vector) { //from this vector to vector in parameter
+    Vector2D tempDiffVector(vector.x-x, vector.y-y);
+    return tempDiffVector;
+  }
+
+  Vector2D getOppositeVector() {
+    Vector2D tempOppositeVector(-x,-y);
+    return tempOppositeVector;
+  }
+
+
+};
+
+Vector2D gameOffset;
+
+bool keysOn[4] = {false,false,false};
 
 SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Event event;
 
-struct Color {i32 r; i32 g; i32 b; i32 a;};
+struct Color {uint8_t r; uint8_t g; uint8_t b; uint8_t a;};
 const struct Color black = {0x00, 0x00, 0x00, 0xFF};
 const struct Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 const struct Color red   = {0xFF, 0x00, 0x00, 0xFF};
 
 bool runProgram = true;
 
-void drawRect(i32 sx, i32 sy, i32 sw, i32 sh, struct Color color, bool fill){
+void drawRect(Vector2D pos, Vector2D size, struct Color color, bool fill){
+  SDL_Rect rect = {(int)pos.x,(int)pos.y,(int)size.x,(int)size.y};
+  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+
+  if (fill) { SDL_RenderFillRect(renderer, &rect); } 
+  else      { SDL_RenderDrawRect(renderer, &rect); }
+}
+
+void drawRect(int sx, int sy, int sw, int sh, struct Color color, bool fill){
   SDL_Rect rect = {sx,sy,sw,sh};
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
@@ -46,11 +156,6 @@ void drawBackground(struct Color color) {
 };
 
 class TileSet {
-private:
-  xml_document<> doc;
-  xml_node<> * root_node;
-  xml_node<> * element_node;
-
 public:
   string path;
   string imagePath;
@@ -59,6 +164,10 @@ public:
   int tileColumns;
   int tileRows;
   int tileCount;
+
+  xml_document<> doc;
+  xml_node<> * root_node;
+  xml_node<> * element_node;
 
   SDL_Surface* sourceImageSet;
   SDL_Texture* sourceTexSet;
@@ -101,7 +210,7 @@ public:
     SDL_DestroyTexture(sourceTexSet);
   }
 
-  void render() {
+  void renderTest() {
     SDL_Rect tempSourceRect = {0,0,imageWidth,imageHeight};
     SDL_Rect tempDestRect = {0,0,SWIDTH,SHEIGHT};
     SDL_RenderCopy(renderer, sourceTexSet, &tempSourceRect, &tempDestRect);
@@ -116,6 +225,12 @@ public:
     tempRect.y *= tileHeight;
     return tempRect;
   }
+
+  void renderTile(short ID, Vector2D pos, Vector2D size) {
+    SDL_Rect tempSourceRect = getRectOfID(ID);
+    SDL_Rect tempDestRect = {(int)pos.x,(int)pos.y,(int)size.x,(int)size.y};
+    SDL_RenderCopy(renderer, sourceTexSet, &tempSourceRect, &tempDestRect);
+  } 
 
   void printProperties() {
     cout << "Tileset " << path << ":" << endl;
@@ -146,7 +261,7 @@ public:
   int mapWidth, mapHeight;
   short* tiles; // = new int[m * n];
 
-  Map(string ipath) {
+  Map(string ipath, int iTileWidth) {
     path = ipath;
     cout << "Parsing " << path << " to Map" << endl;
 
@@ -164,8 +279,11 @@ public:
 
     tileSetPath = tileSetNode->first_attribute("source")->value();
 
-    tileWidth = atoi(mapNode->first_attribute("tilewidth")->value());
-    tileHeight = atoi(mapNode->first_attribute("tileheight")->value());
+    //tileWidth = atoi(mapNode->first_attribute("tilewidth")->value());
+    //tileHeight = atoi(mapNode->first_attribute("tileheight")->value());
+
+    tileWidth = iTileWidth;
+    tileHeight = iTileWidth;
 
     width = atoi(mapNode->first_attribute("width")->value());
     height = atoi(mapNode->first_attribute("height")->value());
@@ -206,13 +324,17 @@ public:
       //go to next layer
       tempLayerNode = tempLayerNode->next_sibling();
     }
-
-
   }
 
-  short getID(TileSet* tileSet, int x, int y, int layer) {
-    return tiles[layer* width*height + y * width + x]; 
-    //tiles[layer* (*tileSet).tileCount + y * (*tileSet).tileColumns + x]
+  short getID(int tx, int ty, int layer) {
+    return tiles[layer* width*height + ty * width + tx]; 
+  }
+
+  bool isColliding(Vector2D pos) {
+    float tempTx = ((int)pos.x)/tileWidth; //without the rest!
+    float tempTy = ((int)pos.y)/tileHeight;
+    return getID(tempTx,tempTy,1);
+
   }
 
   void printTiles() {
@@ -230,20 +352,72 @@ public:
   void printProperties() {
     cout << "Map " << path << ":" << endl;
     cout << "Tileset Path:" << tileSetPath << endl;
-    cout << "Map W:" << width << " H:" << height << endl;
+    cout << "Map Columns:" << width << " Rows:" << height << endl;
+    cout << "Map PixelW:" << mapWidth << " H:" << mapHeight << endl;
     cout << "Number of layers: " << layerCount << endl;
     cout << "Tile W:" << tileWidth << " H:" << tileHeight << endl;
   }
 
-  void render(TileSet* tileSet, SDL_Texture* texture, int layer, int offsetX, int offsetY) {
-    for (int y = 0; y<height; y++) {
-      for (int x = 0; x<width; x++) {
-        short currentBlockID = getID(tileSet,x,y,layer);
-        SDL_Rect tempSourceRect = (*tileSet).getRectOfID(currentBlockID);
-        SDL_Rect tempDestRect = {x*screenTileWidth+offsetX, y*screenTileWidth+offsetY, screenTileWidth, screenTileWidth};
-        SDL_RenderCopy(renderer, texture, &tempSourceRect, &tempDestRect);
+  void render(TileSet* tileSet, int layer, Vector2D offset) {
+    for (int ty = 0; ty<height; ty++) {
+      for (int tx = 0; tx<width; tx++) {
+        Vector2D tempPos(tx*tileWidth+offset.x, ty*tileWidth+offset.y);
+        Vector2D tempSize(tileWidth,tileWidth);
+        tileSet->renderTile(getID(tx,ty,layer),tempPos,tempSize);
       }
     }
+  }
+};
+
+class Entity { 
+public:
+  Vector2D pos;
+  Vector2D vel;
+  Vector2D size;
+  Vector2D normViewAngle;
+  Vector2D offsetToCenter;
+  struct Color color;
+  bool initialized;
+
+  Entity() {
+    initialized = false;
+  }
+
+  void init(Vector2D iPos, Vector2D iSize, Vector2D iNormViewAngle, struct Color icolor) {
+    pos = iPos;
+    size = iSize;
+    vel.set(0,0);
+    normViewAngle = iNormViewAngle.getNorm();
+    color = icolor;
+    initialized = true;
+    offsetToCenter.set(size.x*0.5, size.y*0.5);
+  }
+
+  void init(float ix, float iy, struct Color icolor) {
+    pos.x = ix; pos.y = iy;
+    size.x = 10; size.y = 10;
+    normViewAngle.set(1,0);
+    vel.set(0,0);
+    color = icolor;
+    initialized = true;
+    offsetToCenter.set(size.x*0.5, size.y*0.5);
+  }
+
+  void update(Map* map) {
+    if (!map->isColliding(pos.getAdded(vel.x,0))) {
+      pos.x += vel.x;
+    } else {vel.x*=-0.9;}
+
+    if (!map->isColliding(pos.getAdded(0,vel.y))) {
+      pos.y += vel.y;
+    } else {vel.y*=-0.9;}
+
+    vel.multWithScalar(0.99f);
+  }
+
+  void render(Vector2D offset) {
+    Vector2D tempPos = pos.getSubt(offsetToCenter).getAdded(offset);
+    drawRect(tempPos,size,color,true);
   }
 };
 
@@ -271,6 +445,12 @@ int mySDLInit() {
     return 1;
 }
 
+void toggleFullscreen() {
+    bool isFullscreen = SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN;
+    SDL_SetWindowFullscreen(window, isFullscreen ? 0 : SDL_WINDOW_FULLSCREEN);
+    SDL_ShowCursor(isFullscreen);
+}
+
 void handleEvents() {
   while (SDL_PollEvent(&event)) {
     if (event.type == SDL_QUIT) { runProgram = 0; }
@@ -278,19 +458,22 @@ void handleEvents() {
       switch (event.key.keysym.scancode) {
       case SDL_SCANCODE_W:
       case SDL_SCANCODE_UP:
-        //do something
+        keysOn[0] = true;
         break;
       case SDL_SCANCODE_S:
       case SDL_SCANCODE_DOWN:
-        //do something
+        keysOn[1] = true;
         break;
       case SDL_SCANCODE_A:
       case SDL_SCANCODE_LEFT:
-        //do something
+        keysOn[2] = true;
         break;
       case SDL_SCANCODE_D:
       case SDL_SCANCODE_RIGHT:
-        //do something
+        keysOn[3] = true;
+        break;
+      case SDL_SCANCODE_F:
+        toggleFullscreen();
         break;
       case SDL_SCANCODE_ESCAPE:
         runProgram = 0;
@@ -298,19 +481,23 @@ void handleEvents() {
       default:
         break;
       }
-  } else if (event.type == SDL_KEYUP) { 
+    } else if (event.type == SDL_KEYUP) { 
       switch (event.key.keysym.scancode) {
       case SDL_SCANCODE_W:
       case SDL_SCANCODE_UP:
-        break;
-      case SDL_SCANCODE_A:
-      case SDL_SCANCODE_LEFT:
+        keysOn[0] = false;
         break;
       case SDL_SCANCODE_S:
       case SDL_SCANCODE_DOWN:
+        keysOn[1] = false;
+        break;
+      case SDL_SCANCODE_A:
+      case SDL_SCANCODE_LEFT:
+        keysOn[2] = false;
         break;
       case SDL_SCANCODE_D:
       case SDL_SCANCODE_RIGHT:
+        keysOn[3] = false;
         break;
       default:
         break;
@@ -319,16 +506,21 @@ void handleEvents() {
   }
 }
 
-void render(Map* map, TileSet* tileSet) {
+void renderGame(TileSet* tileSet, Map* map, Entity* entities, Vector2D offset) {
   SDL_RenderClear(renderer); //make screen black
   drawBackground(black);
   //drawRect(10,10,50,50,red,true);
 
   //Render Ghostlayer
-  map->render(tileSet,tileSet->sourceTexSet,0,offsetX,offsetY);
+  map->render(tileSet,0,offset);
 
   //Render Collisionlayer
-  map->render(tileSet,tileSet->sourceTexSet,1,offsetX,offsetY);
+  map->render(tileSet,1,offset);
+
+  for (int i = 0; i<maxEntityCount; i++) {
+    if (entities[i].initialized) {entities[i].render(offset);}
+  }
+
   //tileSet->render();
   SDL_RenderPresent(renderer); // triggers the double buffers for multiple rendering
 } 
@@ -343,18 +535,32 @@ int main(void) {
   if (!mySDLInit()) {return -1;}
 
   TileSet tileSet("./KenneyLandscapeTiles.tsx");
-  Map playgroundMap("./PlaygroundMap.tmx");
+  Map map("./PlaygroundMap.tmx", 32);
 
-  offsetX = (SWIDTH-playgroundMap.mapWidth*screenTileWidth/playgroundMap.tileWidth)/2;
-  offsetY = (SHEIGHT-playgroundMap.mapHeight*screenTileWidth/playgroundMap.tileHeight)/2;
+  map.printProperties();
 
-  playgroundMap.printProperties();
-  tileSet.printProperties();
+  Entity entities[maxEntityCount];
+  entities[0].init(map.mapWidth/2,map.mapWidth/2,red);
+
+  gameOffset.set(
+    (SWIDTH-map.mapWidth)/2,
+    (SHEIGHT-map.mapHeight)/2
+  );
 
   while (runProgram) {
     handleEvents();
-    render(&playgroundMap,&tileSet);
+    Vector2D tempAcceleration(
+      0.2*((int)keysOn[3] - (int)keysOn[2]), // D & A
+      0.2*((int)keysOn[1] - (int)keysOn[0])  // S & W
+    );
 
+    entities[0].vel.add(tempAcceleration);
+    
+    for (int i = 0; i<maxEntityCount; i++) {
+      if (entities[i].initialized) {entities[i].update(&map);}
+    }
+
+    renderGame(&tileSet, &map, entities, gameOffset);
     SDL_Delay(1000 / FPS);
   }
   clean();
