@@ -1,5 +1,4 @@
-#ifndef ENTITIES_HPP
-#define ENTITIES_HPP
+#pragma once
 
 #include "macros.hpp"
 #include "mySDL.hpp"
@@ -24,5 +23,3 @@ public:
 
   void render(const Vector2D &offset);
 };
-
-#endif

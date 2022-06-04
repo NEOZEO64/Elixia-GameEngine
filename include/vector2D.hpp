@@ -1,5 +1,4 @@
-#ifndef VECTOR2D_HPP
-#define VECTOR2D_HPP
+#pragma once
 
 #include <iostream>
 #include <math.h>
@@ -41,5 +40,3 @@ Vector2D operator/(Vector2D const &thisVector, double x);
 Vector2D operator/(double x, Vector2D const &thisVector);
 
 ostream &operator<<(ostream &out, Vector2D const &vector);
-
-#endif

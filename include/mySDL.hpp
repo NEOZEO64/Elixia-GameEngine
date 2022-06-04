@@ -1,5 +1,4 @@
-#ifndef MYSDL_HPP
-#define MYSDL_HPP
+#pragma once
 
 #include "macros.hpp"
 #include "tileLib.hpp"
@@ -21,5 +20,3 @@ void drawRect(SDL_Renderer *renderer, int sx, int sy, int sw, int sh,
               SDL_Color color, bool fill);
 
 void drawBackground(SDL_Renderer *renderer, SDL_Color color);
-
-#endif

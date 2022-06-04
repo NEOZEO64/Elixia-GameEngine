@@ -1,5 +1,4 @@
-#ifndef TILE_HPP
-#define TILE_HPP
+#pragma once
 
 #include "macros.hpp"
 #include "mySDL.hpp"
@@ -78,5 +77,3 @@ public:
   void renderTile(short ID, const Vector2D &pos, const Vector2D &size);
   void logProperties();
 };
-
-#endif
