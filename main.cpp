@@ -60,6 +60,7 @@ public:
     offsetToCenter = size * 0.5;
     vel.set(0,0);
     normViewAng = normViewAngle.norm();
+    LOG("New entity appeared");
   }
 
 
@@ -101,12 +102,12 @@ int mySDLInit() {
     srand(time(NULL)); // use the current time as the seed to generate random integers
 
     if (SDL_Init(SDL_INIT_EVENTS | SDL_INIT_TIMER | SDL_INIT_VIDEO) != 0) {
-        cout << "error initializing SDL:" << SDL_GetError() << endl;
-        return 0;
+      ERROR(fmt::format("error initializing SDL: {}",SDL_GetError() ));
+      return 0;
     }
 
     if (IMG_Init(IMG_INIT_PNG) == 0) {
-        cout << "error initializing SDL2_image" << endl;
+      ERROR("error initializing SDL2_image");
 	    return 0;
     }
 
@@ -114,10 +115,10 @@ int mySDLInit() {
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     if (window == NULL || renderer == 0) {
-        cout << "Error loading window, renderer or image" << endl;
+        ERROR("Error loading window, renderer or image");
         return 0;
     }
-
+    LOG("SDL initialized successfully");
     return 1;
 }
 
@@ -125,6 +126,7 @@ void toggleFullscreen() {
     bool isFullscreen = SDL_GetWindowFlags(window) & SDL_WINDOW_FULLSCREEN;
     SDL_SetWindowFullscreen(window, isFullscreen ? 0 : SDL_WINDOW_FULLSCREEN);
     SDL_ShowCursor(isFullscreen);
+    LOG("Toggled fullscreen");
 }
 
 void handleEvents() {
@@ -205,12 +207,14 @@ void clean() {
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
+    LOG("SDL successfully cleaned");
 }
 
 int main() {
   if (!mySDLInit()) {return -1;}
 
   TileSet tileSet(string(RESOURCE_PATH) + "KenneyLandscapeTiles.tsx",renderer);
+  tileSet.logProperties();
 
   tileSize = WINDOW_WIDTH/tileSet.tileColumns;
   int tileSize2 = WINDOW_HEIGHT/tileSet.tileRows;
@@ -218,6 +222,7 @@ int main() {
   if (tileSize > tileSize2) {tileSize = tileSize2;}
 
   Map map(string(LEVELS_PATH) + "PlaygroundMap.tmx", tileSize);
+  map.logProperties();
 
   vector<Entity> entities;
 
@@ -232,7 +237,7 @@ int main() {
     (WINDOW_WIDTH-map.mapWidth)/2,
     (WINDOW_HEIGHT-map.mapHeight)/2
   );
-
+  LOG("Game loop is going to run");
   while (runProgram) {
     handleEvents();
     Vector2D tempAcceleration(
@@ -250,5 +255,6 @@ int main() {
     SDL_Delay(1000 / FPS);
   }
   clean();
+  LOG("Quit");
   return 0;
 }

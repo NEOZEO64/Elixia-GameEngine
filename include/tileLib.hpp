@@ -7,6 +7,7 @@
 #include <SDL2/SDL_image.h>
 #include <math.h>
 #include "macros.hpp"
+#include <fmt/core.h> //to format strings
 
 using namespace rapidxml;
 using namespace std;
@@ -41,9 +42,9 @@ public:
 
   bool isColliding(TileSet* tileSet,const Vector2D& pos);
 
-  void printTiles();
+  void logTiles();
 
-  void printProperties();
+  void logProperties();
 
   void render(TileSet* tileSet, int layer, const Vector2D& offset);
 };
@@ -75,5 +76,5 @@ public:
   void renderTest();
   SDL_Rect getRectOfID(short ID);
   void renderTile(short ID, const Vector2D& pos, const Vector2D& size);
-  void printProperties();
+  void logProperties();
 };

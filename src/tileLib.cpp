@@ -1,12 +1,11 @@
 #include "tileLib.hpp"
 
 Map::Map(string ipath, int iTileWidth) : path(ipath) {
-    cout << "Parsing " << path << " to Map" << endl;
 
     // Read the xml file into a vector
     ifstream xmlTilesFile(path);
     if (xmlTilesFile.fail()) {
-        cout << "File " << path << "doesn't exist. This will cause errors" << endl;
+        ERROR(fmt::format("Tile-Map file on {} doesn't exist. This will cause errors",path));
     }
     vector<char> buffer((istreambuf_iterator<char>(xmlTilesFile)), istreambuf_iterator<char>());
     buffer.push_back('\0');
@@ -59,6 +58,7 @@ Map::Map(string ipath, int iTileWidth) : path(ipath) {
         //go to next layer
         tempLayerNode = tempLayerNode->next_sibling();
     }
+    LOG(fmt::format("Loaded map on {} successfully",path));
 }
 
 short Map::getID(int tx, int ty, int layer) {
@@ -72,25 +72,28 @@ bool Map::isColliding(TileSet* tileSet,const Vector2D& pos) {
     return (0<tempID && tempID <(tileSet->tileCount));
 }
 
-void Map::printTiles() {
+void Map::logTiles() {
+    LOG("Map tiles: ");
     for (int layer = 0; layer<layerCount; layer++) {
-        cout << "Layer " << layer+1 << ":" << endl;
+        LOGn(fmt::format("\tLayer {}:",layer+1));
         for (int y = 0; y<height; y++) {
-            for (int x = 0; x<width; x++) {
-                cout << tiles[layer* width*height + y * width + x] << ",";
+            LOGn("\t");
+            for (int x = 0; x<23; x++) { //you also could log all tiles if you write "width" instead of "23"
+                LOGn(fmt::format("{:>3}", tiles[layer* width*height + y * width + x]) + ",");
             }
-            cout << endl;
+            LOGn("...\n"); //but if you log all tiles, you have to remove these "..."
         }
     }
 }
 
-void Map::printProperties() {
-    cout << "Map " << path << ":" << endl;
-    cout << "Tileset Path:" << tileSetPath << endl;
-    cout << "Map Columns:" << width << " Rows:" << height << endl;
-    cout << "Map PixelW:" << mapWidth << " H:" << mapHeight << endl;
-    cout << "Number of layers: " << layerCount << endl;
-    cout << "Tile W:" << tileWidth << " H:" << tileHeight << endl;
+void Map::logProperties() {
+    LOG(fmt::format("Map {}:\n",path)
+    + fmt::format("\tTileset path: {}\n", tileSetPath)
+    + fmt::format("\tMap columns: {} ,rows {}\n", width, height)
+    + fmt::format("\tMap width: {}\n", mapWidth + mapHeight)
+    + fmt::format("\tNumber of layers: {}\n", layerCount)
+    + fmt::format("\tTile width: {} height {}\n", tileWidth, tileHeight));
+    logTiles();
 }
 
 void Map::render(TileSet* tileSet, int layer, const Vector2D& offset) {
@@ -106,12 +109,11 @@ void Map::render(TileSet* tileSet, int layer, const Vector2D& offset) {
 
 
 TileSet::TileSet(string ipath, SDL_Renderer* renderer) : path(ipath), renderer(renderer) {
-    cout << "Parsing " << path << " to TileSet Class" << endl;
 
     // Read the xml file into a vector
     ifstream xmlTilesFile(path);
     if (xmlTilesFile.fail()) {
-        cout << "File " << path << "doesn't exist. This will cause errors" << endl;
+        ERROR(fmt::format("Tileset File on {} doesn't exist. This will cause errors",path));
     }
 
     vector<char> buffer((istreambuf_iterator<char>(xmlTilesFile)), istreambuf_iterator<char>());
@@ -134,8 +136,12 @@ TileSet::TileSet(string ipath, SDL_Renderer* renderer) : path(ipath), renderer(r
 
     const char *c = imagePath.c_str();
     sourceImageSet = IMG_Load(c);
+    if (!sourceImageSet) {
+        ERROR("Could not load tileset image on " << imagePath << " correctly");
+    }
     sourceTexSet = SDL_CreateTextureFromSurface(renderer, sourceImageSet);
     SDL_FreeSurface(sourceImageSet);
+    LOG(fmt::format("Parsed tileset on {} successfully", path));
 }
 
 TileSet::~TileSet() {
@@ -164,12 +170,12 @@ void TileSet::renderTile(short ID, const Vector2D& pos, const Vector2D& size) {
     SDL_RenderCopy(renderer, sourceTexSet, &tempSourceRect, &tempDestRect);
 } 
 
-void TileSet::printProperties() {
-    cout << "Tileset " << path << ":" << endl;
-    cout << "Imagepath:" << imagePath << endl;
-    cout << "Image W:" << imageWidth << " H:" << imageHeight << endl;
-    cout << "Tile W:" << tileWidth << endl;
-    cout << "Tile H:" << tileHeight << endl;
-    cout << "Tile Columns:" << tileColumns << endl;
-    cout << "Tile Count:" << tileCount << endl;
+void TileSet::logProperties() {
+    LOG(fmt::format("Tileset {}:\n",path)
+    + fmt::format("\tImagepath: {}\n", imagePath)
+    + fmt::format("\tImage width:{} height:{}\n ", imageWidth, imageHeight)
+    + fmt::format("\tTile width: {}\n", tileWidth)
+    + fmt::format("\tTile height: {}\n", tileHeight)
+    + fmt::format("\tTile columns: {}\n", tileColumns)
+    + fmt::format("\tTile count: {}\n", tileCount));
 }
