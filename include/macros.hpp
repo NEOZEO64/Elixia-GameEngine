@@ -1,3 +1,5 @@
+#pragma once
+
 #define FPS 60
 #define PI 3.14159265
 
@@ -16,7 +18,6 @@
 #define DEBUG true
 #define COLORS true
 
-
 #if COLORS
 #define BLUE "\033[0;36;94m"
 #define RED "\033[0;31;91m"
@@ -28,11 +29,13 @@
 #endif
 
 #include <iostream>
-#define ERROR(x) std::cout << RED << "ERROR: " << WHITE << x << std::endl 
+using std::cout, std::endl;
+
+#define ERROR(x) std::cout << RED << "ERROR: " << WHITE << x << std::endl
 
 #if DEBUG == true
 #define LOG(x) std::cout << BLUE << "LOG: " << WHITE << x << std::endl
-#define LOGn(x) std::cout << x //no new line
+#define LOGn(x) std::cout << x // no new line
 #else
 #define LOG(x)
 #define LOGn(x)

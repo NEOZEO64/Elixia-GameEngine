@@ -1,13 +1,17 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include "vector2D.hpp"
+#ifndef TILE_HPP
+#define TILE_HPP
+
+#include "macros.hpp"
+#include "mySDL.hpp"
 #include "rapidxml.hpp"
+#include "vector2D.hpp"
 #include <SDL2/SDL.h> // general SDL graphics, sound, events library
 #include <SDL2/SDL_image.h>
-#include <math.h>
-#include "macros.hpp"
 #include <fmt/core.h> //to format strings
+#include <fstream>
+#include <iostream>
+#include <math.h>
+#include <vector>
 
 using namespace rapidxml;
 using namespace std;
@@ -18,10 +22,10 @@ class Map;
 class Map {
 private:
   xml_document<> doc;
-  xml_node<>* mapNode; //root node
-  xml_node<>* tileSetNode; //element node
-  xml_node<>* tempLayerNode; //element node
-  xml_node<>* tempDataNode; //sub-element node
+  xml_node<> *mapNode;       // root node
+  xml_node<> *tileSetNode;   // element node
+  xml_node<> *tempLayerNode; // element node
+  xml_node<> *tempDataNode;  // sub-element node
 
   ifstream xmlTilesFile;
   vector<char> buffer;
@@ -34,19 +38,15 @@ public:
   int layerCount;
   int tileWidth, tileHeight;
   int mapWidth, mapHeight;
-  short* tiles; // = new int[m * n];
+  short *tiles; // = new int[m * n];
 
   Map(string ipath, int iTileWidth);
 
   short getID(int tx, int ty, int layer);
-
-  bool isColliding(TileSet* tileSet,const Vector2D& pos);
-
+  bool isColliding(TileSet *tileSet, const Vector2D &pos);
   void logTiles();
-
   void logProperties();
-
-  void render(TileSet* tileSet, int layer, const Vector2D& offset);
+  void render(TileSet *tileSet, int layer, const Vector2D &offset);
 };
 
 class TileSet {
@@ -60,21 +60,23 @@ public:
   int tileCount;
 
   xml_document<> doc;
-  xml_node<> * root_node;
-  xml_node<> * element_node;
+  xml_node<> *root_node;
+  xml_node<> *element_node;
 
-  SDL_Renderer* renderer;
-  SDL_Surface* sourceImageSet;
-  SDL_Texture* sourceTexSet;
+  SDL_Renderer *renderer;
+  SDL_Surface *sourceImageSet;
+  SDL_Texture *sourceTexSet;
 
   ifstream xmlTilesFile;
   vector<char> buffer;
 
-  TileSet(string ipath, SDL_Renderer* renderer);
+  TileSet(string ipath, SDL_Renderer *renderer);
   ~TileSet();
 
   void renderTest();
   SDL_Rect getRectOfID(short ID);
-  void renderTile(short ID, const Vector2D& pos, const Vector2D& size);
+  void renderTile(short ID, const Vector2D &pos, const Vector2D &size);
   void logProperties();
 };
+
+#endif

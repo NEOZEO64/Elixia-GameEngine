@@ -65,5 +65,7 @@
         "utility": "cpp",
         "vector": "cpp"
     },
-    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.makefile-tools",
+    "editor.formatOnSave": true,
+    "editor.formatOnType": false,
 }
