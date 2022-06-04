@@ -5,13 +5,13 @@ LIBRARIES := -lfmt -lSDL2_image -lSDL2_ttf $(shell sdl2-config --cflags)
 SRC     := src
 INCLUDE := include
 
-all: clean main.exe
+all: clean main.out
 
-main.exe: main.cpp $(SRC)/*.cpp
+main.out: main.cpp $(SRC)/*.cpp
 	$(CXX) $(CXX_FLAGS) -I$(INCLUDE) $^ -o $@ $(LIBRARIES)
 
 run: all
-	./main.exe
+	./main.out
 
 clean:
-	rm -f *.exe
+	rm -f *.out
