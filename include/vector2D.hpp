@@ -5,37 +5,38 @@
 
 using namespace std;
 
-class Vector2D {
-public:
+struct Vector2D {
   double x, y;
+  Vector2D ();
+  Vector2D (double x, double y);
+  //Vector2D (initializer_list<double>);
 
-  Vector2D();
-  Vector2D (double ix, double iy);
+  void set(double x, double y);
 
-  void set(double ix, double iy);
-  void set(Vector2D newVector);
+  void operator=(Vector2D const& vector);
+  void operator+=(Vector2D const& vector);
+  void operator-=(Vector2D const& vector);
+  void operator*=(double scalar);
+  void operator/=(double scalar);
 
-  void add(Vector2D vector);
-  void add(double ix, double iy);
+  Vector2D getAdded(double ix, double iy) const;
 
-  void subt(Vector2D vector);
-
-  Vector2D getAdded(Vector2D vector);
-  Vector2D getAdded(double ix, double iy);
-
-  Vector2D getSubt(Vector2D vector);
-
-  void multWithScalar(double scalar);
-
-  void multWithVector(Vector2D vector);
-  void multWithVector(double ix, double iy);
-
-  Vector2D getNorm();
-  void normalize();
-  double getLen();
-  double getAngle();
-  double getDist(Vector2D vector);
-
-  Vector2D getDiffVector(Vector2D vector);
-  Vector2D getOppositeVector();
+  Vector2D norm() const;
+  double len() const;
+  double ang() const;
+  double sc(Vector2D const& vector) const;
+  double dist(Vector2D const& vector) const;
+  string to_string() const;
 };
+
+Vector2D operator+(Vector2D const& thisVector, Vector2D const& otherVector);
+Vector2D operator+(Vector2D const& thisVector                             );
+Vector2D operator-(Vector2D const& thisVector, Vector2D const& otherVector);
+Vector2D operator-(Vector2D const& thisVector                             );
+
+Vector2D operator*(Vector2D const& thisVector,                    double x);
+Vector2D operator*(double x,                    Vector2D const& thisVector);
+Vector2D operator/(Vector2D const& thisVector,                    double x);
+Vector2D operator/(double x,                    Vector2D const& thisVector);
+
+ostream& operator<<(ostream& out, Vector2D const& vector);

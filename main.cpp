@@ -14,8 +14,6 @@ using namespace std;
 
 int tileSize;
 
-Vector2D gameOffset;
-
 bool keysOn[4] = {false,false,false};
 
 SDL_Window* window;
@@ -29,7 +27,7 @@ const struct Color red   = {0xFF, 0x00, 0x00, 0xFF};
 
 bool runProgram = true;
 
-void drawRect(Vector2D pos, Vector2D size, struct Color color, bool fill){
+void drawRect(const Vector2D& pos, const Vector2D& size, struct Color color, bool fill){
   SDL_Rect rect = {(int)pos.x,(int)pos.y,(int)size.x,(int)size.y};
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
@@ -54,37 +52,16 @@ void drawBackground(struct Color color) {
 
 class Entity { 
 public:
-  Vector2D pos;
-  Vector2D vel;
-  Vector2D size;
-  Vector2D normViewAngle;
-  Vector2D offsetToCenter;
+  Vector2D pos,vel, size, normViewAng, offsetToCenter;
   struct Color color;
-  bool initialized;
 
-  Entity() {
-    initialized = false;
-  }
-
-  void init(Vector2D iPos, Vector2D iSize, Vector2D iNormViewAngle, struct Color icolor) {
-    pos = iPos;
-    size = iSize;
+  Entity(const Vector2D& pos, const Vector2D& size, const Vector2D& normViewAngle, struct Color color) : 
+            pos(pos), size(size), color(color) {
+    offsetToCenter = size * 0.5;
     vel.set(0,0);
-    normViewAngle = iNormViewAngle.getNorm();
-    color = icolor;
-    initialized = true;
-    offsetToCenter.set(size.x*0.5, size.y*0.5);
+    normViewAng = normViewAngle.norm();
   }
 
-  void init(float ix, float iy, struct Color icolor) {
-    pos.x = ix; pos.y = iy;
-    size.x = tileSize*0.8; size.y = tileSize*0.8;
-    normViewAngle.set(1,0);
-    vel.set(0,0);
-    color = icolor;
-    initialized = true;
-    offsetToCenter.set(size.x*0.5, size.y*0.5);
-  }
 
   void update(Map* map, TileSet* tileSet) {
     if ( //check if 4 corners at the new position are inside any part of the map
@@ -111,11 +88,11 @@ public:
       else {vel.y=0;pos.y=(map->tileHeight)*((int)pos.y)/(map->tileHeight);}
     }
 
-    vel.multWithScalar(0.99f);
+    vel*=0.99f;
   }
 
-  void render(Vector2D offset) {
-    Vector2D tempPos = pos.getSubt(offsetToCenter).getAdded(offset);
+  void render(const Vector2D& offset) {
+    Vector2D tempPos = pos-offsetToCenter+offset;
     drawRect(tempPos,size,color,false);
   }
 };
@@ -205,7 +182,7 @@ void handleEvents() {
   }
 }
 
-void renderGame(TileSet* tileSet, Map* map, Entity* entities, Vector2D offset) {
+void renderGame(TileSet* tileSet, Map* map, vector<Entity>& entities, const Vector2D& offset) {
   SDL_RenderClear(renderer); //make screen black
   drawBackground(black);
   //drawRect(10,10,50,50,red,true);
@@ -216,8 +193,8 @@ void renderGame(TileSet* tileSet, Map* map, Entity* entities, Vector2D offset) {
   //Render Collisionlayer
   map->render(tileSet,1,offset);
 
-  for (int i = 0; i<MAX_ENTITIES; i++) {
-    if (entities[i].initialized) {entities[i].render(offset);}
+  for (Entity& entity: entities) {
+    entity.render(offset);
   }
 
   //tileSet->render();
@@ -242,10 +219,16 @@ int main() {
 
   Map map(string(LEVELS_PATH) + "PlaygroundMap.tmx", tileSize);
 
-  Entity entities[MAX_ENTITIES];
-  entities[0].init(map.mapWidth/2,map.mapHeight/2,red);
+  vector<Entity> entities;
 
-  gameOffset.set(
+  Vector2D tempEntityPos(map.mapWidth/2,map.mapHeight/2);
+  Vector2D tempEntitySize(tileSet.tileWidth/2,tileSet.tileHeight/2);
+  Vector2D normViewAngle(0,0);
+
+  Entity tempEntity(tempEntityPos, tempEntitySize, normViewAngle, red);
+  entities.push_back(tempEntity);
+
+  Vector2D gameOffset(
     (WINDOW_WIDTH-map.mapWidth)/2,
     (WINDOW_HEIGHT-map.mapHeight)/2
   );
@@ -253,14 +236,14 @@ int main() {
   while (runProgram) {
     handleEvents();
     Vector2D tempAcceleration(
-      0.2*((int)keysOn[3] - (int)keysOn[2]), // D & A
-      0.2*((int)keysOn[1] - (int)keysOn[0])  // S & W
+      SPEED*((int)keysOn[3] - (int)keysOn[2]), // D & A
+      SPEED*((int)keysOn[1] - (int)keysOn[0])  // S & W
     );
 
-    entities[0].vel.add(tempAcceleration);
+    entities[0].vel += tempAcceleration;
     
-    for (int i = 0; i<MAX_ENTITIES; i++) {
-      if (entities[i].initialized) {entities[i].update(&map,&tileSet);}
+    for (Entity& entity: entities) {
+      entity.update(&map,&tileSet);
     }
 
     renderGame(&tileSet, &map, entities, gameOffset);

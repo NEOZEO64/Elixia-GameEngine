@@ -2,6 +2,7 @@
 #define PI 3.14159265
 
 #define BOUNCE true
+#define SPEED 0.1
 
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 800

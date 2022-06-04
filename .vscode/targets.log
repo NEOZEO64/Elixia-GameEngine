@@ -8,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Sat Jun  4 17:57:12 2022
+# Make data base, printed on Sat Jun  4 18:11:22 2022
 
 # Variables
 
@@ -30,7 +30,6 @@ VSCODE_LOG_NATIVE = false
 CURDIR := /Users/carl/Main/Projects/0 TopDownShooter/TopDown-Egoshooter
 # makefile
 SHELL = /bin/sh
- 
 # environment
 VSCODE_NLS_CONFIG = {"locale":"de","availableLanguages":{},"_languagePackSupport":true}
 # environment
@@ -102,6 +101,7 @@ INCLUDE := include
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # default
+ 
 MAKE_COMMAND := /Library/Developer/CommandLineTools/usr/bin/make
 # default
 .VARIABLES := 
@@ -157,12 +157,11 @@ VSCODE_PID = 15609
 # No pattern-specific variable values.
 
 # Directories
- 
 
-# . (device 16777220, inode 47956868): 17 files, no impossibilities.
+# . (device 16777220, inode 47956868): 18 files, no impossibilities.
 # src (device 16777220, inode 49025469): 5 files, no impossibilities.
 
-# 22 files, no impossibilities in 2 directories.
+# 23 files, no impossibilities in 2 directories.
 
 # Implicit Rules
 
@@ -170,7 +169,7 @@ VSCODE_PID = 15609
 
 # Files
 
-all: clean main.exe
+all: clean main.out
 #  Command-line target.
 #  Implicit rule search has been done.
 #  File does not exist.
@@ -179,7 +178,7 @@ all: clean main.exe
 # variable set hash-table stats:
 # Load=0/32=0%, Rehash=0, Collisions=0/2=0%
 
-main.exe: main.cpp src/tileLib.cpp src/vector2D.cpp
+main.out: main.cpp src/tileLib.cpp src/vector2D.cpp
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -196,7 +195,7 @@ main.exe: main.cpp src/tileLib.cpp src/vector2D.cpp
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-06-04 17:56:43
+#  Last modified 2022-06-04 18:09:32
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
@@ -231,7 +230,7 @@ run: all
 #  Modification time never checked.
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 14):
-	./main.exe
+	./main.out
 	
 
 clean:
@@ -259,7 +258,7 @@ clean:
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=1/10=10%
 #  commands to execute (from `Makefile', line 17):
-	rm -f *.exe
+	rm -f *.out
 	
 
 # files hash-table stats:
@@ -274,8 +273,7 @@ clean:
 # # of strcache buffers: 1
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
- 
 
-# Finished Make data base on Sat Jun  4 17:57:12 2022
+# Finished Make data base on Sat Jun  4 18:11:22 2022
 
  

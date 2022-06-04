@@ -65,7 +65,7 @@ short Map::getID(int tx, int ty, int layer) {
     return tiles[layer* width*height + ty * width + tx]; 
 }
 
-bool Map::isColliding(TileSet* tileSet,Vector2D pos) {
+bool Map::isColliding(TileSet* tileSet,const Vector2D& pos) {
     float tempTx = ((int)pos.x)/tileWidth; //without the rest!
     float tempTy = ((int)pos.y)/tileHeight;
     short tempID = getID(tempTx,tempTy,1);
@@ -93,7 +93,7 @@ void Map::printProperties() {
     cout << "Tile W:" << tileWidth << " H:" << tileHeight << endl;
 }
 
-void Map::render(TileSet* tileSet, int layer, Vector2D offset) {
+void Map::render(TileSet* tileSet, int layer, const Vector2D& offset) {
     for (int ty = 0; ty<height; ty++) {
         for (int tx = 0; tx<width; tx++) {
         Vector2D tempPos(tx*tileWidth+offset.x, ty*tileWidth+offset.y);
@@ -158,7 +158,7 @@ SDL_Rect TileSet::getRectOfID(short ID) {
     return tempRect;
 }
 
-void TileSet::renderTile(short ID, Vector2D pos, Vector2D size) {
+void TileSet::renderTile(short ID, const Vector2D& pos, const Vector2D& size) {
     SDL_Rect tempSourceRect = getRectOfID(ID);
     SDL_Rect tempDestRect = {(int)pos.x,(int)pos.y,(int)size.x,(int)size.y};
     SDL_RenderCopy(renderer, sourceTexSet, &tempSourceRect, &tempDestRect);

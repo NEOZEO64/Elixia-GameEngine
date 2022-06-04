@@ -39,13 +39,13 @@ public:
 
   short getID(int tx, int ty, int layer);
 
-  bool isColliding(TileSet* tileSet,Vector2D pos);
+  bool isColliding(TileSet* tileSet,const Vector2D& pos);
 
   void printTiles();
 
   void printProperties();
 
-  void render(TileSet* tileSet, int layer, Vector2D offset);
+  void render(TileSet* tileSet, int layer, const Vector2D& offset);
 };
 
 class TileSet {
@@ -74,6 +74,6 @@ public:
 
   void renderTest();
   SDL_Rect getRectOfID(short ID);
-  void renderTile(short ID, Vector2D pos, Vector2D size);
+  void renderTile(short ID, const Vector2D& pos, const Vector2D& size);
   void printProperties();
 };
