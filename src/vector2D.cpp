@@ -1,5 +1,4 @@
-#include "vector2D.h"
-#include <cmath>
+#include "vector2D.hpp"
 
 #define PI 3.1415926535
 

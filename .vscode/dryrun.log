@@ -1,0 +1,6 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory `/Users/carl/Main/Projects/0 TopDownShooter/TopDown-Egoshooter'
+rm -f *.exe
+ 
+make: Leaving directory `/Users/carl/Main/Projects/0 TopDownShooter/TopDown-Egoshooter'
+ 
