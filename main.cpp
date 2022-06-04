@@ -20,14 +20,13 @@ SDL_Window* window;
 SDL_Renderer* renderer;
 SDL_Event event;
 
-struct Color {uint8_t r; uint8_t g; uint8_t b; uint8_t a;};
-const struct Color black = {0x00, 0x00, 0x00, 0xFF};
-//const struct Color white = {0xFF, 0xFF, 0xFF, 0xFF};
-const struct Color red   = {0xFF, 0x00, 0x00, 0xFF};
+SDL_Color black = {0x00, 0x00, 0x00, 0xFF};
+//SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
+SDL_Color red   = {0xFF, 0x00, 0x00, 0xFF};
 
 bool runProgram = true;
 
-void drawRect(const Vector2D& pos, const Vector2D& size, struct Color color, bool fill){
+void drawRect(const Vector2D& pos, const Vector2D& size, SDL_Color color, bool fill){
   SDL_Rect rect = {(int)pos.x,(int)pos.y,(int)size.x,(int)size.y};
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
@@ -35,7 +34,7 @@ void drawRect(const Vector2D& pos, const Vector2D& size, struct Color color, boo
   else      { SDL_RenderDrawRect(renderer, &rect); }
 }
 
-void drawRect(int sx, int sy, int sw, int sh, struct Color color, bool fill){
+void drawRect(int sx, int sy, int sw, int sh, SDL_Color color, bool fill){
   SDL_Rect rect = {sx,sy,sw,sh};
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 
@@ -43,7 +42,7 @@ void drawRect(int sx, int sy, int sw, int sh, struct Color color, bool fill){
   else      { SDL_RenderDrawRect(renderer, &rect); }
 }
 
-void drawBackground(struct Color color) {
+void drawBackground(SDL_Color color) {
   SDL_Rect rect = {0,0, WINDOW_WIDTH, WINDOW_HEIGHT};
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
   SDL_RenderFillRect(renderer, &rect);
@@ -53,9 +52,9 @@ void drawBackground(struct Color color) {
 class Entity { 
 public:
   Vector2D pos,vel, size, normViewAng, offsetToCenter;
-  struct Color color;
+  SDL_Color color;
 
-  Entity(const Vector2D& pos, const Vector2D& size, const Vector2D& normViewAngle, struct Color color) : 
+  Entity(const Vector2D& pos, const Vector2D& size, const Vector2D& normViewAngle, SDL_Color color) : 
             pos(pos), size(size), color(color) {
     offsetToCenter = size * 0.5;
     vel.set(0,0);
