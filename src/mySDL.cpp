@@ -67,6 +67,13 @@ void drawRect(SDL_Renderer *renderer, int sx, int sy, int sw, int sh,
   }
 }
 
+void drawLine(SDL_Renderer *renderer, const Vector2D &pos1,
+              const Vector2D &pos2, SDL_Color color) {
+  SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
+  SDL_RenderDrawLine(renderer, (int)pos1.x, (int)pos1.y, (int)pos2.x,
+                     (int)pos2.y);
+}
+
 void drawBackground(SDL_Renderer *renderer, SDL_Color color) {
   SDL_Rect rect = {0, 0, WINDOW_WIDTH, WINDOW_HEIGHT};
   SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);

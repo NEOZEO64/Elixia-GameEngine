@@ -73,9 +73,8 @@ short Map::getID(int tx, int ty, int layer) {
 }
 
 bool Map::isColliding(TileSet *tileSet, const Vector2D &pos) {
-  float tempTx = ((int)pos.x) / tileWidth; // without the rest!
-  float tempTy = ((int)pos.y) / tileHeight;
-  short tempID = getID(tempTx, tempTy, 1);
+  Vector2D tempV(((int)pos.x) / tileWidth, ((int)pos.y) / tileHeight);
+  short tempID = getID(tempV.x, tempV.y, 1);
   return (0 < tempID && tempID < (tileSet->tileCount));
 }
 

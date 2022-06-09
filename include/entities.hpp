@@ -12,6 +12,7 @@
 class Entity {
 public:
   Vector2D pos, vel, size, normViewAng, offsetToCenter;
+  vector<Vector2D> hitBox;
   SDL_Color color;
   SDL_Renderer *renderer;
 
@@ -19,7 +20,15 @@ public:
          const Vector2D &normViewAngle, SDL_Color color,
          SDL_Renderer *renderer);
 
+  bool isColliding(Map *map, TileSet *tileSet, Vector2D &offset);
+
+  // check if move is possible (return true or false) and if possible move and
+  // update hitbox
+  bool move(Map *map, TileSet *tileSet, Vector2D &path);
+
   void update(Map *map, TileSet *tileSet);
 
   void render(const Vector2D &offset);
+
+  void renderDebug(const Vector2D &offset);
 };

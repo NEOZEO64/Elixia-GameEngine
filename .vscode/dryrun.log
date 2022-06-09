@@ -1,6 +1,6 @@
 make --dry-run --always-make --keep-going --print-directory
 make: Entering directory `/Users/carl/Main/Projects/0 TopDownShooter/TopDown-Egoshooter'
 rm -f *.out
-/usr/bin/g++ -std=c++17 -fdiagnostics-color=always -g -Wall -Wpedantic `sdl2-config --libs --cflags` -Iinclude main.cpp src/entities.cpp src/tileLib.cpp src/vector2D.cpp -o main.out -lfmt -lSDL2_image -lSDL2_ttf -I/usr/local/include/SDL2 -D_THREAD_SAFE
+/usr/bin/g++ -std=c++17 -fdiagnostics-color=always -g -Wall -Wpedantic `sdl2-config --libs --cflags` -Iinclude main.cpp src/entities.cpp src/mySDL.cpp src/tileLib.cpp src/vector2D.cpp -o main.out -lfmt -lSDL2_image -lSDL2_ttf -I/usr/local/include/SDL2 -D_THREAD_SAFE
 make: Leaving directory `/Users/carl/Main/Projects/0 TopDownShooter/TopDown-Egoshooter'
  

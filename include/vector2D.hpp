@@ -19,8 +19,6 @@ struct Vector2D {
   void operator*=(double scalar);
   void operator/=(double scalar);
 
-  Vector2D getAdded(double ix, double iy) const;
-
   Vector2D norm() const;
   double len() const;
   double ang() const;

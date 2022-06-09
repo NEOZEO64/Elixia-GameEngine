@@ -22,6 +22,8 @@ SDL_Color red = {0xFF, 0x00, 0x00, 0xFF};
 
 bool runProgram = true;
 
+bool visualDebugMode = false;
+
 void handleEvents() {
   while (SDL_PollEvent(&event)) {
     if (event.type == SDL_QUIT) {
@@ -50,6 +52,9 @@ void handleEvents() {
         break;
       case SDL_SCANCODE_ESCAPE:
         runProgram = 0;
+        break;
+      case SDL_SCANCODE_F1:
+        visualDebugMode = !visualDebugMode;
         break;
       default:
         break;
@@ -93,11 +98,14 @@ void renderGame(TileSet *tileSet, Map *map, vector<Entity> &entities,
 
   for (Entity &entity : entities) {
     entity.render(offset);
+    if (visualDebugMode) {
+      entity.renderDebug(offset);
+    }
   }
 
   // tileSet->renderTest(); To test
-  SDL_RenderPresent(
-      renderer); // triggers the double buffers for multiple rendering
+  SDL_RenderPresent(renderer);
+  // triggers the double buffers for multiple rendering
 }
 
 int main() {

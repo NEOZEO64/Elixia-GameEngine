@@ -49,11 +49,6 @@ void Vector2D::operator/=(double scalar) {
   y /= scalar;
 }
 
-Vector2D Vector2D::getAdded(double ix, double iy) const {
-  Vector2D temp(x + ix, y + iy);
-  return temp;
-}
-
 Vector2D Vector2D::norm() const {
   Vector2D tempNormVector(x, y);
   tempNormVector *= (1.0 / len());
