@@ -14,7 +14,7 @@ Entity::Entity(const Vector2D &pos, const Vector2D &size,
   LOG("New entity appeared");
 }
 
-bool Entity::move(Map *map, TileSet *tileSet, Vector2D &path) {
+void Entity::move(Map *map, TileSet *tileSet, Vector2D &path) {
   Vector2D tempVel(path.x, 0);
   if (!isColliding(map, tileSet, tempVel)) {
     pos.x += path.x;

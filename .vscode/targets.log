@@ -8,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Thu Jun  9 09:43:33 2022
+# Make data base, printed on Fri Jun 10 08:44:41 2022
 
 # Variables
 
@@ -41,7 +41,7 @@ VSCODE_VERBOSE_LOGGING = true
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/d4/z2y_lllx71d6w2fwj8rnsc_c0000gp/T/vscode-ipc-e878b0d7-da96-4ae1-9962-16f3b1a5aa7c.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/d4/z2y_lllx71d6w2fwj8rnsc_c0000gp/T/vscode-ipc-0b6932c7-b741-4259-a9e5-610e7409ceb1.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -71,7 +71,7 @@ HOME = /Users/carl
 # default
 MAKEFILEPATH = $(shell /usr/bin/xcode-select -print-path 2>/dev/null || echo /Developer)/Makefiles
 # environment
-VSCODE_CODE_CACHE_PATH = /Users/carl/Library/Application Support/Code/CachedData/c3511e6c69bb39013c4a4b7b9566ec1ca73fc4d5
+VSCODE_CODE_CACHE_PATH = /Users/carl/Library/Application Support/Code/CachedData/4af164ea3a06f701fe3e89a2bcbb421d2026b68f
 # environment
 LOGNAME = carl
 # environment
@@ -109,7 +109,7 @@ TMPDIR = /var/folders/d4/z2y_lllx71d6w2fwj8rnsc_c0000gp/T/
 # automatic
 *F = $(notdir $*)
 # environment
-VSCODE_IPC_HOOK = /Users/carl/Library/Application Support/Code/1.67.2-main.sock
+VSCODE_IPC_HOOK = /Users/carl/Library/Application Support/Code/1.68.0-main.sock
 # makefile
 MAKEFLAGS = Rrqp
 # environment
@@ -117,7 +117,7 @@ MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.50539611.50539618
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.51553873.51553880
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # automatic
@@ -147,7 +147,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 51558
+VSCODE_PID = 66049
 # variable set hash-table stats:
 # Load=68/1024=7%, Rehash=0, Collisions=2/97=2%
 
@@ -285,6 +285,6 @@ src/entities.cpp:
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Thu Jun  9 09:43:33 2022
+# Finished Make data base on Fri Jun 10 08:44:41 2022
 
  

@@ -24,7 +24,7 @@ public:
 
   // check if move is possible (return true or false) and if possible move and
   // update hitbox
-  bool move(Map *map, TileSet *tileSet, Vector2D &path);
+  void move(Map *map, TileSet *tileSet, Vector2D &path);
 
   void update(Map *map, TileSet *tileSet);
 

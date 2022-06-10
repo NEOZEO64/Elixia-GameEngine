@@ -31,11 +31,11 @@
 #include <iostream>
 using std::cout, std::endl;
 
-#define ERROR(x) std::cout << RED << "ERROR: " << WHITE << x << std::endl
+#define ERROR(x) std::cerr << RED << "ERROR: " << WHITE << x << std::endl
 
 #if DEBUG == true
-#define LOG(x) std::cout << BLUE << "LOG: " << WHITE << x << std::endl
-#define LOGn(x) std::cout << x // no new line
+#define LOG(x) std::cerr << BLUE << "LOG: " << WHITE << x << std::endl
+#define LOGn(x) std::cerr << x // no new line
 #else
 #define LOG(x)
 #define LOGn(x)
