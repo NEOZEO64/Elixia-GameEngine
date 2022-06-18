@@ -102,7 +102,7 @@ void Map::logProperties() {
       fmt::format("\tMap width: {}\n", mapWidth + mapHeight) +
       fmt::format("\tNumber of layers: {}\n", layerCount) +
       fmt::format("\tTile width: {} height {}\n", tileWidth, tileHeight));
-  logTiles();
+  // logTiles();
 }
 
 void Map::render(TileSet *tileSet, int layer, const Vector2D &offset) {
