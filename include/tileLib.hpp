@@ -20,54 +20,43 @@ class Map;
 
 class Map {
 private:
-  xml_document<> doc;
-  xml_node<> *mapNode;       // root node
-  xml_node<> *tileSetNode;   // element node
-  xml_node<> *tempLayerNode; // element node
-  xml_node<> *tempDataNode;  // sub-element node
-
-  ifstream xmlTilesFile;
-  vector<char> buffer;
+  string properties;
+  string errors;
 
 public:
   string path;
   string tileSetPath;
 
-  int width, height;
-  int layerCount;
-  int tileWidth, tileHeight;
-  int mapWidth, mapHeight;
-  short *tiles; // = new int[m * n];
+  Vector2D size;
+  unsigned short layerCount;
+  short *tiles;
 
-  Map(string ipath, int iTileWidth);
+  Map(string ipath);
 
-  short getID(int tx, int ty, int layer);
-  bool isColliding(TileSet *tileSet, const Vector2D &pos);
-  void logTiles();
-  void logProperties();
-  void render(TileSet *tileSet, int layer, const Vector2D &offset);
+  short getID(const Vector2D &pos, unsigned short layer);
+  string getProperties();
+  string getErrors();
+  void render(TileSet *tileSet, unsigned short layer,
+              const Vector2D &tileRenderSize, const Vector2D &gameRenderPos,
+              const Vector2D &gameRenderSize);
 };
 
 class TileSet {
+private:
+  string properties;
+  string errors;
+
 public:
   string path;
   string imagePath;
-  int tileWidth, tileHeight;
-  int imageWidth, imageHeight;
-  int tileColumns;
-  int tileRows;
-  int tileCount;
-
-  xml_document<> doc;
-  xml_node<> *root_node;
-  xml_node<> *element_node;
+  Vector2D tileSize;
+  Vector2D imageSize;
+  Vector2D tileRange; // tileRows & tileColumns
+  unsigned int tileCount;
 
   SDL_Renderer *renderer;
   SDL_Surface *sourceImageSet;
   SDL_Texture *sourceTexSet;
-
-  ifstream xmlTilesFile;
-  vector<char> buffer;
 
   TileSet(string ipath, SDL_Renderer *renderer);
   ~TileSet();
@@ -75,5 +64,6 @@ public:
   void renderTest();
   SDL_Rect getRectOfID(short ID);
   void renderTile(short ID, const Vector2D &pos, const Vector2D &size);
-  void logProperties();
+  string getProperties();
+  string getErrors();
 };

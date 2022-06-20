@@ -10,7 +10,7 @@
 #include <math.h>
 #include <vector>
 
-bool keysOn[4] = {false, false, false};
+bool keysOn[4] = {false, false, false, false};
 
 SDL_Window *window;
 SDL_Renderer *renderer;
@@ -20,9 +20,15 @@ SDL_Color black = {0x00, 0x00, 0x00, 0xFF};
 SDL_Color white = {0xFF, 0xFF, 0xFF, 0xFF};
 SDL_Color red = {0xFF, 0x00, 0x00, 0xFF};
 
-bool runProgram = true;
+size_t level = 0;
+
+Vector2D tileRenderSize(40, 40);
+Vector2D gameRenderSize(WINDOW_WIDTH - 20, WINDOW_HEIGHT - 20);
+Vector2D gameRenderPos((WINDOW_WIDTH - gameRenderSize.x) / 2,
+                       (WINDOW_HEIGHT - gameRenderSize.y) / 2);
 
 bool visualDebugMode = false;
+bool runProgram = true;
 
 void handleEvents() {
   while (SDL_PollEvent(&event)) {
@@ -52,6 +58,9 @@ void handleEvents() {
         break;
       case SDL_SCANCODE_ESCAPE:
         runProgram = 0;
+        break;
+      case SDL_SCANCODE_KP_ENTER:
+        level++;
         break;
       case SDL_SCANCODE_F1:
         visualDebugMode = !visualDebugMode;
@@ -85,25 +94,25 @@ void handleEvents() {
 }
 
 void renderGame(TileSet *tileSet, Map *map, vector<Entity> &entities,
-                const Vector2D &offset) {
+                Vector2D &tileRenderSize, const Vector2D &gameRenderPos,
+                const Vector2D &gameRenderSize) {
   SDL_RenderClear(renderer); // make screen black
   drawBackground(renderer, black);
   // drawRect(10,10,50,50,red,true);
 
-  // Render Ghostlayer
-  map->render(tileSet, 0, offset);
-
-  // Render Collisionlayer
-  map->render(tileSet, 1, offset);
+  // Render Map layer per layer
+  for (size_t layer = 0; layer < map->layerCount; layer++) {
+    map->render(tileSet, layer, tileRenderSize, gameRenderPos, gameRenderSize);
+  }
 
   for (Entity &entity : entities) {
-    entity.render(offset);
+    entity.render(tileRenderSize, gameRenderPos);
     if (visualDebugMode) {
-      entity.renderDebug(offset);
+      entity.renderDebug(tileRenderSize, gameRenderPos);
     }
   }
 
-  // tileSet->renderTest(); To test
+  // tileSet->renderTest(); // To test
   SDL_RenderPresent(renderer);
   // triggers the double buffers for multiple rendering
 }
@@ -117,31 +126,32 @@ int main() {
     return -1;
   }
 
-  TileSet tileSet(string(RESOURCE_PATH) + "KenneyLandscapeTiles.tsx", renderer);
-  tileSet.logProperties();
-
-  int tileSize = WINDOW_WIDTH / tileSet.tileColumns;
-  int tileSize2 = WINDOW_HEIGHT / tileSet.tileRows;
-
-  if (tileSize > tileSize2) {
-    tileSize = tileSize2;
+  // TileSet tileSet(string(RESOURCE_PATH) + "KenneyLandscapeTiles.tsx",
+  // renderer);
+  TileSet tileSet(string(RESOURCE_PATH) + "Town Set.tsx", renderer);
+  if (tileSet.getErrors() != "") {
+    ERROR(tileSet.getErrors());
+    return 1;
   }
+  LOG(tileSet.getProperties());
 
-  Map map(string(LEVELS_PATH) + "PlaygroundMap.tmx", tileSize);
-  map.logProperties();
+  // Map map(string(LEVELS_PATH) + "0.tmx", tileSize);
+  Map map(string(LEVELS_PATH) + "1.tmx");
+  if (map.getErrors() != "") {
+    ERROR(map.getErrors());
+    return 1;
+  }
+  LOG(map.getProperties());
 
-  vector<Entity> entities;
+  Vector2D tempEntityPos = map.size / 2;
+  Vector2D tempEntitySize = tileSet.tileSize / 2;
+  Vector2D normViewAngle(0, 1);
 
-  Vector2D tempEntityPos(map.mapWidth / 2, map.mapHeight / 2);
-  Vector2D tempEntitySize(tileSet.tileWidth / 2, tileSet.tileHeight / 2);
-  Vector2D normViewAngle(0, 0);
+  Entity tempEntity(&map, &tileSet, tempEntityPos, tempEntitySize,
+                    normViewAngle, red, renderer);
 
-  Entity tempEntity(tempEntityPos, tempEntitySize, normViewAngle, red,
-                    renderer);
-  entities.push_back(tempEntity);
+  vector<Entity> entities = {tempEntity};
 
-  Vector2D gameOffset((WINDOW_WIDTH - map.mapWidth) / 2,
-                      (WINDOW_HEIGHT - map.mapHeight) / 2);
   LOG("Game loop is going to run");
   while (runProgram) {
     handleEvents();
@@ -153,10 +163,11 @@ int main() {
     entities[0].vel += tempAcceleration;
 
     for (Entity &entity : entities) {
-      entity.update(&map, &tileSet);
+      entity.update();
     }
 
-    renderGame(&tileSet, &map, entities, gameOffset);
+    renderGame(&tileSet, &map, entities, tileRenderSize, gameRenderPos,
+               gameRenderSize);
     SDL_Delay(1000 / FPS);
   }
   mySDLclean(&window, &renderer);

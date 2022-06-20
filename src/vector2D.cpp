@@ -44,9 +44,19 @@ void Vector2D::operator*=(double scalar) {
   y *= scalar;
 }
 
+void Vector2D::operator*=(Vector2D const &vector) { // my own implementation
+  x *= vector.x;
+  y *= vector.y;
+}
+
 void Vector2D::operator/=(double scalar) {
   x /= scalar;
   y /= scalar;
+}
+
+void Vector2D::operator/=(Vector2D const &vector) { // my own implementation
+  x /= vector.x;
+  y /= vector.y;
 }
 
 Vector2D Vector2D::norm() const {
@@ -104,15 +114,30 @@ Vector2D operator*(double x, Vector2D const &thisVector) {
   tempVector *= x;
   return tempVector;
 }
+Vector2D operator*(Vector2D const &thisVector,
+                   Vector2D const &otherVector) { // my own implementation of *
+  Vector2D tempVector = thisVector;
+  tempVector.x *= otherVector.x;
+  tempVector.y *= otherVector.y;
+  return tempVector;
+}
+
 Vector2D operator/(Vector2D const &thisVector, double x) {
   Vector2D tempVector(thisVector.x, thisVector.y);
   tempVector /= x;
   return tempVector;
 }
-
 Vector2D operator/(double x, Vector2D const &thisVector) {
-  Vector2D tempVector(thisVector.x, thisVector.y);
-  tempVector *= x;
+  Vector2D tempVector(x, x);
+  tempVector /= thisVector;
+  return tempVector;
+}
+
+Vector2D operator/(Vector2D const &thisVector,
+                   Vector2D const &otherVector) { // my own implementation of /
+  Vector2D tempVector = thisVector;
+  tempVector.x /= otherVector.x;
+  tempVector.y /= otherVector.y;
   return tempVector;
 }
 
