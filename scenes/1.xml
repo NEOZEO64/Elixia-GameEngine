@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scene>
+    <cam tileWidth=40 tileHeight=40 colorR=0 colorG=0 colorB=0/>
+    <map path="1.tmx" tilesetPath="Town Pixel.tsx" />
+    <entities>
+        <entity posX=4.5 posY=4.5 width=0.8 height=0.8 viewAngle=0 tilesetPath="Player.tsx"/>
+    </entities>
+</scene>

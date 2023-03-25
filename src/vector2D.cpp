@@ -14,6 +14,11 @@ void Vector2D::set(double ix, double iy) {
   y = iy;
 }
 
+void Vector2D::makeInt() {
+  x = (int)x;
+  y = (int)y;
+}
+
 /*
 Vector2D (initializer_list<double>) {
     if (initializer_list.size()>2) {

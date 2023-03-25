@@ -12,6 +12,7 @@ struct Vector2D {
   // Vector2D (initializer_list<double>);
 
   void set(double x, double y);
+  void makeInt();
 
   void operator=(Vector2D const &vector);
   void operator+=(Vector2D const &vector);
