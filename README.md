@@ -9,7 +9,7 @@ this is a personal hobby project, on which I worked to make it simpler to progra
 -   Handle all the player movement & inventory etc.
 
 Basically you should be able to create a simple action RPG like the first Zelda games with this.
-Though the engine should remain modular so that you can just use the parts you need. E.g. if you want to program Pong, you don't need a tile map, so you don't need to include it in the header files.
+Though the engine should remain modular so that you can just use the parts you need. E.g. if you want to just program Pong, you don't need a tile map, so you don't need to include it in the header files.
 
 ## ToDo
 
